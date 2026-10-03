@@ -1,11 +1,11 @@
 // All site content lives here. Edit this file to make the site yours.
 export const profile = {
-  name: "Wayne",
+  name: "Wayne Wrafter",
   title: "Your Professional Title",
   tagline: "One sentence on what you do and who you do it for.",
   email: "wayne@graftondigital.com",
   links: [
-    { label: "LinkedIn", href: "https://www.linkedin.com/in/your-handle" },
+    { label: "LinkedIn", href: "https://www.linkedin.com/in/wayne-wrafter-b270b525/" },
     { label: "GitHub", href: "https://github.com/bladesorrow" },
   ],
   about: [
