@@ -37,7 +37,7 @@ export default function Home() {
       <main id="main" tabIndex={-1}>
         <section className="hero" id="top">
           <div className="hero-text">
-            <p className="eyebrow">{profile.title}</p>
+            <p className="eyebrow"><span aria-hidden="true">&gt; </span>{profile.title}</p>
             <h1>{profile.name}</h1>
             <p className="lead">{profile.tagline}</p>
             <div className="actions">
@@ -70,8 +70,9 @@ export default function Home() {
           <h2 id="trike-h">{profile.trike.heading}</h2>
           <p>{profile.trike.intro}</p>
           <ul className="grid">
-            {profile.trike.points.map((p) => (
+            {profile.trike.points.map((p, i) => (
               <li key={p.title} className="card">
+                <span className="idx" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
                 <h3>{p.title}</h3>
                 <p>{p.text}</p>
               </li>
