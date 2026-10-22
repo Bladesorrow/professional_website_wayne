@@ -1,24 +1,5 @@
 import { profile } from "../content/profile";
 
-function TrikeIllustration() {
-  return (
-    <svg viewBox="0 0 400 240" role="img" aria-label="Illustration of a recumbent trike" className="trike-art">
-      <g fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="90" cy="180" r="38" />
-        <circle cx="90" cy="180" r="4" fill="currentColor" />
-        <circle cx="300" cy="190" r="28" />
-        <circle cx="300" cy="190" r="4" fill="currentColor" />
-        <path d="M90 180 L160 150 L250 150 L300 190" />
-        <path d="M160 150 L150 100 L190 90" strokeWidth="10" />
-        <path d="M250 150 L270 100" />
-        <path d="M262 100 L300 100" />
-        <path d="M215 150 L240 175" />
-      </g>
-      <circle cx="205" cy="62" r="16" fill="currentColor" />
-    </svg>
-  );
-}
-
 export default function Home() {
   return (
     <>
@@ -45,7 +26,13 @@ export default function Home() {
               <a className="button ghost" href="#rides">See my rides</a>
             </div>
           </div>
-          <div className="hero-art"><TrikeIllustration /></div>
+          <div className="hero-art"><img
+              src="/trike.webp"
+              width={880}
+              height={590}
+              alt="My recumbent trike: a red-framed three-wheeler with a black mesh reclined seat"
+              className="trike-photo"
+            /></div>
         </section>
 
         {profile.stats.length > 0 && (
