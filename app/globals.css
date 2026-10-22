@@ -109,7 +109,7 @@ blockquote { margin: 0; padding: 24px 28px; border-left: 8px solid var(--sun); b
 .cta a:not(.button) { color: var(--ink); font-weight: 700; }
 .links { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 24px; margin-top: 16px; }
 .links a { display: inline-flex; align-items: center; min-height: 44px; }
-footer { padding-top: 32px; padding-bottom: 40px; text-align: center; color: var(--muted-dark); }
+footer { padding-top: 32px; padding-bottom: 96px; text-align: center; color: var(--muted-dark); }
 footer p { margin: 0 0 4px; }
 @media (max-width: 760px) {
   .hero, .two { grid-template-columns: 1fr; }
@@ -162,3 +162,9 @@ footer p { margin: 0 0 4px; }
   .progress { display: none; }
   .pause { display: none; }
 }
+
+/* trike riding across the page as you scroll */
+.road { position: fixed; left: 0; right: 0; bottom: 0; height: 6px; z-index: 14; pointer-events: none; background: repeating-linear-gradient(90deg, var(--sun) 0 28px, transparent 28px 52px), rgba(6,42,61,0.85); }
+.rider-trike { position: fixed; left: 0; bottom: 4px; width: clamp(88px, 14vw, 150px); aspect-ratio: 160 / 72; z-index: 15; pointer-events: none; will-change: transform; filter: drop-shadow(0 0 2px rgba(255,255,255,0.95)) drop-shadow(0 2px 3px rgba(0,0,0,0.35)); }
+.wheel { transform-box: view-box; }
+@media (prefers-reduced-motion: reduce) { .rider-trike, .road { display: none; } }
