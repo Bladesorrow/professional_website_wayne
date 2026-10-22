@@ -115,3 +115,50 @@ footer p { margin: 0 0 4px; }
   .hero, .two { grid-template-columns: 1fr; }
   .hero-art { max-width: 460px; padding-right: 14px; }
 }
+
+/* ---- motion ---- */
+@keyframes rise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes slide-in { from { opacity: 0; transform: translateX(60px) rotate(2deg); } to { opacity: 1; transform: none; } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes sun-pulse { 0%, 100% { transform: scale(1); box-shadow: 0 0 60px 10px rgba(255,107,26,0.45); } 50% { transform: scale(1.06); box-shadow: 0 0 110px 30px rgba(255,107,26,0.7); } }
+@keyframes drift { to { transform: translateX(-50%); } }
+@keyframes marquee { to { transform: translateX(-25%); } }
+@keyframes dot-ping { 0% { box-shadow: 0 0 0 0 rgba(255,107,26,0.6); } 100% { box-shadow: 0 0 0 14px rgba(255,107,26,0); } }
+.rise { animation: rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms) both; }
+.hero-art { animation: slide-in 1s cubic-bezier(0.2, 0.7, 0.2, 1) 300ms both; }
+.trike-photo { animation: bob 6s ease-in-out 1.5s infinite; }
+.sun-disc { animation: sun-pulse 5s ease-in-out infinite; }
+.wave { overflow: hidden; }
+.wave svg { width: 200%; animation: drift 16s linear infinite; }
+.wave:nth-of-type(even) svg { animation-duration: 22s; animation-direction: reverse; }
+.timeline li::before { animation: dot-ping 2.4s ease-out infinite; }
+.brand svg { transition: transform 0.6s ease; }
+.brand:hover svg { transform: rotate(360deg); }
+.button { position: relative; overflow: hidden; }
+.button::after { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.45) 50%, transparent 70%); transform: translateX(-120%); }
+.button:hover::after { transform: translateX(120%); transition: transform 0.7s ease; }
+
+/* scroll reveal (only when JS is running) */
+.js [data-reveal] { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease var(--d, 0ms), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d, 0ms); }
+.js [data-reveal].in { opacity: 1; transform: none; }
+
+/* progress bar */
+.progress { position: fixed; top: 0; left: 0; right: 0; height: 5px; z-index: 20; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--teal), var(--sun)); }
+
+/* ribbon */
+.marquee-wrap { position: relative; background: var(--sun); color: var(--ink); }
+.marquee { overflow: hidden; padding: 14px 0; }
+.track { display: flex; width: max-content; animation: marquee 28s linear infinite; }
+.marquee.paused .track { animation-play-state: paused; }
+.track span { display: inline-flex; align-items: center; font-family: var(--font-display), sans-serif; font-weight: 800; text-transform: uppercase; font-size: clamp(1.4rem, 4vw, 2.2rem); white-space: nowrap; }
+.track i { font-style: normal; margin: 0 28px; }
+.pause { position: absolute; right: 12px; bottom: 6px; min-height: 44px; padding: 0 14px; background: var(--ink); color: var(--on-dark); border: 0; border-radius: 8px; font: inherit; font-size: 0.85rem; font-weight: 600; cursor: pointer; opacity: 0; }
+.pause:focus-visible, .marquee-wrap:hover .pause { opacity: 1; }
+@media (hover: none) { .pause { opacity: 1; position: static; display: block; margin: 0 auto 8px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-reveal] { opacity: 1; transform: none; }
+  .track { animation: none; }
+  .progress { display: none; }
+  .pause { display: none; }
+}
