@@ -95,6 +95,8 @@ h3 { font-size: 1.25rem; margin: 0; }
 .stats dd { margin: 0; font-family: var(--font-mono), monospace; font-size: 2.2rem; font-weight: 700; color: var(--lime); }
 .stats dt { order: 2; color: var(--muted); }
 .grid { list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+.model { display: inline-flex; align-items: center; gap: 12px; margin: 0 0 16px; padding: 8px 16px; border: 1px solid var(--magenta); border-radius: 999px; font-family: var(--font-mono), monospace; font-weight: 700; color: var(--fg); box-shadow: 0 0 20px rgba(244,114,240,0.3); }
+.model span { color: var(--magenta); font-weight: 400; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.08em; }
 .card {
   position: relative; padding: 24px; background: var(--card); border: 1px solid var(--border); border-radius: 16px;
   border-top: 3px solid var(--cyan); transition: transform 0.15s ease, border-color 0.15s ease;

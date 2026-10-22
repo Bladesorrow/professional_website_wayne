@@ -55,6 +55,7 @@ export default function Home() {
 
         <section id="trike" aria-labelledby="trike-h">
           <h2 id="trike-h">{profile.trike.heading}</h2>
+          <p className="model"><span>Model</span> {profile.trike.model}</p>
           <p>{profile.trike.intro}</p>
           <ul className="grid">
             {profile.trike.points.map((p, i) => (

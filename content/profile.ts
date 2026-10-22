@@ -19,6 +19,8 @@ export const profile = {
   ],
   trike: {
     heading: "The trike",
+    // Read from the HP Velotechnik logo and "Gekko" lettering in the photo. TODO: confirm the exact variant (e.g. Gekko 20).
+    model: "HP Velotechnik Gekko",
     intro:
       "A recumbent trike puts the rider in a supportive reclined seat with two wheels at the front and one at the back. It can't tip over at a standstill and it takes pressure off hands, wrists and back.",
     // TODO: swap in your actual make, model and set-up.
