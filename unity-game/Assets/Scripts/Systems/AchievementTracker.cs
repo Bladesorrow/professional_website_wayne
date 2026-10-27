@@ -16,6 +16,13 @@ namespace RpgGame
             GameEvents.CounterChanged += OnCounter;
         }
 
+        /// <summary>Marks achievements already satisfied by current counters as unlocked, without raising events.</summary>
+        public void SyncFromCounters()
+        {
+            unlocked.Clear();
+            foreach (var a in all) if (GameEvents.Get(a.counterKey) >= a.target) unlocked.Add(a.id);
+        }
+
         public void Dispose() => GameEvents.CounterChanged -= OnCounter;
 
         public bool IsUnlocked(AchievementData a) => unlocked.Contains(a.id);

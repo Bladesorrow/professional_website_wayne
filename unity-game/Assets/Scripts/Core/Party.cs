@@ -13,6 +13,12 @@ namespace RpgGame
         public IReadOnlyList<Unit> Active => active;
         public int MaxSize => (int)type;
 
+        public void Clear()
+        {
+            roster.Clear();
+            active.Clear();
+        }
+
         public void AddToRoster(Unit u)
         {
             u.team = Team.Player;

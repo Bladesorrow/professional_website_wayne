@@ -11,6 +11,8 @@ namespace RpgGame
         public int level;
         public int hp;
         public int mp;
+        public int xp;
+        public readonly Dictionary<StatusType, int> statuses = new Dictionary<StatusType, int>();
         public readonly Dictionary<GearSlot, GearData> gear = new Dictionary<GearSlot, GearData>();
 
         public Unit(CharacterData data, int level = 1, Team team = Team.Player)
@@ -24,6 +26,7 @@ namespace RpgGame
 
         public string Name => data.displayName;
         public bool IsAlive => hp > 0;
+        public int XpToNext => 40 + level * 20;
 
         public int Get(StatType s)
         {
@@ -40,6 +43,24 @@ namespace RpgGame
             hp = Math.Min(hp, Get(StatType.MaxHP));
             mp = Math.Min(mp, Get(StatType.MaxMP));
             return old;
+        }
+
+        public GearData Unequip(GearSlot slot)
+        {
+            if (!gear.TryGetValue(slot, out var old)) return null;
+            gear.Remove(slot);
+            hp = Math.Min(hp, Get(StatType.MaxHP));
+            mp = Math.Min(mp, Get(StatType.MaxMP));
+            return old;
+        }
+
+        /// <summary>Adds XP and returns the number of levels gained.</summary>
+        public int AddXp(int amount)
+        {
+            xp += Math.Max(0, amount);
+            int gained = 0;
+            while (xp >= XpToNext) { xp -= XpToNext; level++; gained++; }
+            return gained;
         }
 
         public void TakeDamage(int amount) => hp = Math.Max(0, hp - Math.Max(0, amount));

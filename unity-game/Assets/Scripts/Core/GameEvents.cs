@@ -17,6 +17,11 @@ namespace RpgGame
             CounterChanged?.Invoke(key, counters[key]);
         }
 
+        public static IEnumerable<KeyValuePair<string, int>> All => counters;
+
+        /// <summary>Overwrites a counter without raising CounterChanged (used when loading saves).</summary>
+        public static void Set(string key, int value) => counters[key] = value;
+
         public static void ResetAll() => counters.Clear();
     }
 }

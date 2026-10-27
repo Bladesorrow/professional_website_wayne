@@ -5,15 +5,17 @@ Turn-based RPG foundation: gear, achievements, collectible characters, 4-person 
 
 ## Run it
 1. Open this folder in Unity Hub (Unity 6 / 6000.x; older LTS versions also work).
-2. Create or open any scene, add an empty GameObject, attach `DemoBattle`, press Play.
-3. Use the *Standard Team (4)* / *Raid Team (6)* buttons to switch modes.
+2. Create or open any scene, add an empty GameObject, attach `GameController`, press Play.
+3. WASD/arrows to walk. Orange markers start a 4v4 skirmish, the big purple marker starts a 6v6 raid with a boss.
+4. Tab opens the menu: party (roster, 4/6 team), gear, achievements, save/load.
+
+Uses the legacy Input Manager (`Input.GetAxis`); set *Active Input Handling* to *Both* if the project defaults to the new Input System.
 
 ## Layout (`Assets/Scripts`)
 - `Data/` ScriptableObjects: `CharacterData`, `SkillData`, `GearData`, `AchievementData`. Create content via *Assets > Create > RPG*.
-- `Core/` runtime state: `Unit` (level, gear, HP/MP), `Party` (roster + active team of 4 or 6), `GameEvents` (counters).
-- `Systems/` `Battle` (speed-ordered turn combat, any team size) and `AchievementTracker` (unlocks from counters).
-- `Demo/` `DemoBattle`: IMGUI playable prototype, no assets required.
+- `Core/` runtime state: `Unit` (level, XP, gear, status), `Party` (roster + active team of 4 or 6), `Inventory`, `GameDatabase`, `GameEvents` (counters).
+- `Systems/` `Battle` (speed-ordered turns, poison/guard, XP and loot rewards), `LootTable`, `AchievementTracker`, `SaveSystem` (JSON).
+- `Demo/` `GameController` (state machine + IMGUI menus), `WorldView3D` (field + encounters), `BattleView3D` (3D battle with primitives), `DemoContent` (all data built at runtime, no assets required).
 
 ## Next ideas
-Inventory and loot drops, save/load (JSON), proper UI (uGUI/UI Toolkit), status effects and elements,
-formation/roles for raids, open-world map and events, boss encounters.
+Real 3D models/animations, more status effects and elements, formations and roles for raids, NPCs and quests, shops, boss mechanics, proper UI (UI Toolkit), data assets instead of runtime-built content.

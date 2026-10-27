@@ -10,7 +10,9 @@ namespace RpgGame
 
     public enum SkillTarget { SingleEnemy, AllEnemies, SingleAlly, AllAllies, Self }
 
-    public enum SkillKind { PhysicalDamage, MagicDamage, Heal }
+    public enum SkillKind { PhysicalDamage, MagicDamage, Heal, Guard }
+
+    public enum StatusType { None, Poison, Guard }
 
     // Standard = 4 members (story/open world), Raid = 6 members.
     public enum PartyType { Standard = 4, Raid = 6 }
