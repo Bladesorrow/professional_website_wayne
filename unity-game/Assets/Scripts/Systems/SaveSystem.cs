@@ -9,6 +9,7 @@ namespace RpgGame
     {
         public string character;
         public int level, xp, hp, mp;
+        public int row;
         public List<string> gear = new List<string>();
     }
 
@@ -20,9 +21,19 @@ namespace RpgGame
     }
 
     [System.Serializable]
+    public class QuestSave
+    {
+        public string id;
+        public int status;
+        public int baseline;
+    }
+
+    [System.Serializable]
     public class SaveData
     {
         public int partyType = (int)PartyType.Standard;
+        public int gold;
+        public List<QuestSave> quests = new List<QuestSave>();
         public List<UnitSave> roster = new List<UnitSave>();
         public List<string> active = new List<string>();
         public List<string> inventory = new List<string>();
@@ -35,12 +46,12 @@ namespace RpgGame
         public static string FilePath => Path.Combine(Application.persistentDataPath, "save.json");
         public static bool Exists => File.Exists(FilePath);
 
-        public static SaveData Capture(Party party, Inventory inventory)
+        public static SaveData Capture(Party party, Inventory inventory, QuestLog questLog)
         {
-            var d = new SaveData { partyType = (int)party.type };
+            var d = new SaveData { partyType = (int)party.type, gold = inventory.gold, quests = questLog.Export() };
             foreach (var u in party.roster)
             {
-                var us = new UnitSave { character = u.data.displayName, level = u.level, xp = u.xp, hp = u.hp, mp = u.mp };
+                var us = new UnitSave { character = u.data.displayName, level = u.level, xp = u.xp, hp = u.hp, mp = u.mp, row = (int)u.row };
                 foreach (var g in u.gear.Values) us.gear.Add(g.displayName);
                 d.roster.Add(us);
             }
@@ -50,14 +61,14 @@ namespace RpgGame
             return d;
         }
 
-        public static void Apply(SaveData d, GameDatabase db, Party party, Inventory inventory)
+        public static void Apply(SaveData d, GameDatabase db, Party party, Inventory inventory, QuestLog questLog)
         {
             party.Clear();
             foreach (var us in d.roster)
             {
                 var data = db.GetCharacter(us.character);
                 if (data == null) continue;
-                var u = new Unit(data, us.level) { xp = us.xp };
+                var u = new Unit(data, us.level) { xp = us.xp, row = us.row == (int)Row.Back ? Row.Back : Row.Front };
                 foreach (var gn in us.gear)
                 {
                     var g = db.GetGear(gn);
@@ -82,6 +93,9 @@ namespace RpgGame
                 var g = db.GetGear(gn);
                 if (g != null) inventory.Add(g);
             }
+
+            inventory.gold = d.gold;
+            questLog.Import(d.quests);
 
             GameEvents.ResetAll();
             foreach (var c in d.counters) GameEvents.Set(c.key, c.value);

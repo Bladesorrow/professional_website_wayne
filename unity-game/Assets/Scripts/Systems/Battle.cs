@@ -25,12 +25,14 @@ namespace RpgGame
 
         // Filled in when the battle is won.
         public int XpReward { get; private set; }
+        public int GoldReward { get; private set; }
         public List<GearData> Drops { get; } = new List<GearData>();
 
         public event Action<string> Log;
         /// <summary>actor, target, skill, amount. actor/skill are null for status ticks (poison).</summary>
         public event Action<Unit, Unit, SkillData, int> Applied;
         public event Action<Unit> Defeated;
+        public event Action<Unit> Enraged;
 
         public Battle(IEnumerable<Unit> players, IEnumerable<Unit> enemies, int seed = 0, LootTable lootTable = null)
         {
@@ -119,6 +121,8 @@ namespace RpgGame
             int defense = magic ? target.Get(StatType.Magic) / 2 : target.Get(StatType.Defense);
             int variance = rng.Next(90, 111);
             int dmg = Math.Max(1, (int)Math.Round((offense * skill.power - defense) * variance / 100.0));
+            if (!magic && actor.row == Row.Back) dmg = Math.Max(1, (int)Math.Round(dmg * 0.8));
+            if (!magic && target.row == Row.Back) dmg = Math.Max(1, (int)Math.Round(dmg * 0.7));
             if (target.statuses.ContainsKey(StatusType.Guard)) dmg = Math.Max(1, dmg / 2);
 
             target.TakeDamage(dmg);
@@ -126,11 +130,22 @@ namespace RpgGame
             Applied?.Invoke(actor, target, skill, dmg);
 
             if (!target.IsAlive) { OnDefeated(target); return; }
+            CheckPhase(target);
             if (skill.status != StatusType.None)
             {
                 target.statuses[skill.status] = skill.statusTurns;
                 Log?.Invoke($"{target.Name} is afflicted with {skill.status}");
             }
+        }
+
+        /// <summary>Bosses enrage below half HP: +50% Attack for the rest of the fight.</summary>
+        void CheckPhase(Unit u)
+        {
+            if (u.team != Team.Enemy || u.data.characterClass != "Boss" || u.statuses.ContainsKey(StatusType.Enrage)) return;
+            if (u.hp * 2 >= u.Get(StatType.MaxHP)) return;
+            u.statuses[StatusType.Enrage] = 999;
+            Log?.Invoke($"{u.Name} ENRAGES! Its attacks grow stronger!");
+            Enraged?.Invoke(u);
         }
 
         void OnDefeated(Unit u)
@@ -149,13 +164,14 @@ namespace RpgGame
             if (State != BattleState.Won) return;
 
             XpReward = enemies.Sum(e => e.level * 25);
+            GoldReward = enemies.Sum(e => e.level * 12);
             foreach (var p in LivingOf(Team.Player))
             {
                 int gained = p.AddXp(XpReward);
                 if (gained > 0) Log?.Invoke($"{p.Name} reached level {p.level}!");
             }
             if (lootTable != null) Drops.AddRange(lootTable.Roll(rng, enemies.Count));
-            Log?.Invoke($"Victory! +{XpReward} XP" + (Drops.Count > 0 ? $", {Drops.Count} item(s) dropped" : ""));
+            Log?.Invoke($"Victory! +{XpReward} XP, +{GoldReward} gold" + (Drops.Count > 0 ? $", {Drops.Count} item(s) dropped" : ""));
 
             GameEvents.Add("battles_won");
             if (players.Count >= (int)PartyType.Raid) GameEvents.Add("raids_won");

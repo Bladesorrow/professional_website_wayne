@@ -12,6 +12,7 @@ namespace RpgGame
         public int hp;
         public int mp;
         public int xp;
+        public Row row = Row.Front;
         public readonly Dictionary<StatusType, int> statuses = new Dictionary<StatusType, int>();
         public readonly Dictionary<GearSlot, GearData> gear = new Dictionary<GearSlot, GearData>();
 
@@ -32,6 +33,7 @@ namespace RpgGame
         {
             int v = data.Base(s) + data.Growth(s) * (level - 1);
             foreach (var g in gear.Values) v += g.Bonus(s);
+            if (s == StatType.Attack && statuses.ContainsKey(StatusType.Enrage)) v = v * 3 / 2;
             return v;
         }
 

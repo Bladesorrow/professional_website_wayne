@@ -10,14 +10,16 @@ namespace RpgGame
     /// </summary>
     public class GameController : MonoBehaviour
     {
-        enum Mode { Explore, Battle, Menu }
-        enum Tab { Party, Gear, Achievements, System }
+        enum Mode { Explore, Battle, Menu, Dialog }
+        enum Tab { Party, Gear, Quests, Achievements, System }
 
         struct Toast { public string text; public float until; }
 
         DemoContent content;
         Party party;
         Inventory inventory;
+        QuestLog questLog;
+        WorldView3D.Npc currentNpc;
         AchievementTracker tracker;
         BattleView3D battleView;
         WorldView3D worldView;
@@ -44,6 +46,7 @@ namespace RpgGame
             content = new DemoContent();
             party = content.party;
             inventory = content.inventory;
+            questLog = content.questLog;
             selected = party.roster[0];
 
             tracker = new AchievementTracker(content.achievements);
@@ -88,6 +91,14 @@ namespace RpgGame
                     var enc = worldView.Tick(Time.deltaTime);
                     if (enc != null) StartBattle(enc);
                     else if (Input.GetKeyDown(KeyCode.Tab)) mode = Mode.Menu;
+                    else if (Input.GetKeyDown(KeyCode.E) && worldView.NearbyNpc() != null)
+                    {
+                        currentNpc = worldView.NearbyNpc();
+                        mode = Mode.Dialog;
+                    }
+                    break;
+                case Mode.Dialog:
+                    if (Input.GetKeyDown(KeyCode.Escape)) mode = Mode.Explore;
                     break;
                 case Mode.Menu:
                     if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape)) mode = Mode.Explore;
@@ -128,6 +139,7 @@ namespace RpgGame
         {
             rewardsApplied = true;
             if (battle.State != BattleState.Won) return;
+            inventory.gold += battle.GoldReward;
             foreach (var d in battle.Drops) inventory.Add(d);
             if (battle.Drops.Count > 0) GameEvents.Add("items_looted", battle.Drops.Count);
         }
@@ -150,6 +162,7 @@ namespace RpgGame
             {
                 case Mode.Explore: DrawExploreHud(); break;
                 case Mode.Menu: DrawMenu(); break;
+                case Mode.Dialog: DrawDialog(); break;
                 case Mode.Battle: DrawBattleUI(); break;
             }
             DrawToasts();
@@ -169,9 +182,11 @@ namespace RpgGame
         void DrawExploreHud()
         {
             GUI.Box(new Rect(10, 10, 430, 70),
-                "WASD / arrows: move   |   Tab: menu (party, gear, achievements, save)\n" +
+                "WASD / arrows: move   |   E: talk to NPC   |   Tab: menu (party, gear, quests, save)\n" +
                 "Orange marker = skirmish (4 heroes)   |   Purple marker = RAID (6 heroes)\n" +
-                $"Team: {party.type} ({party.Active.Count}/{party.MaxSize})   Bag: {inventory.items.Count} items");
+                $"Team: {party.type} ({party.Active.Count}/{party.MaxSize})   Bag: {inventory.items.Count} items   Gold: {inventory.gold}");
+            var near = worldView.NearbyNpc();
+            if (near != null) GUI.Box(new Rect(Screen.width / 2f - 130, Screen.height - 60, 260, 30), $"[E] Talk to {near.name}");
         }
 
         void DrawBattleUI()
@@ -243,7 +258,7 @@ namespace RpgGame
         {
             if (battle.State == BattleState.Won)
             {
-                GUILayout.Label($"VICTORY!  +{battle.XpReward} XP each");
+                GUILayout.Label($"VICTORY!  +{battle.XpReward} XP each, +{battle.GoldReward} gold");
                 GUILayout.Label(battle.Drops.Count == 0 ? "No drops." : "Loot: " + string.Join(", ", battle.Drops.Select(d => d.displayName)));
             }
             else GUILayout.Label("DEFEAT... your party retreats to recover.");
@@ -270,6 +285,7 @@ namespace RpgGame
             {
                 case Tab.Party: DrawPartyTab(); break;
                 case Tab.Gear: DrawGearTab(); break;
+                case Tab.Quests: DrawQuestsTab(); break;
                 case Tab.Achievements: DrawAchievementsTab(); break;
                 case Tab.System: DrawSystemTab(); break;
             }
@@ -280,6 +296,7 @@ namespace RpgGame
         void DrawPartyTab()
         {
             GUILayout.Label($"Active team: {party.Active.Count}/{party.MaxSize}  ({party.type})   -   raids auto-switch to 6 when you touch the purple marker");
+            GUILayout.Label("Back row: takes 30% less physical damage, deals 20% less physical damage.");
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Standard team (4)")) party.SetType(PartyType.Standard);
             if (GUILayout.Button("Raid team (6)")) party.SetType(PartyType.Raid);
@@ -289,7 +306,8 @@ namespace RpgGame
             {
                 bool active = party.Active.Contains(u);
                 GUILayout.BeginHorizontal(GUI.skin.box);
-                GUILayout.Label($"{u.Name}  Lv{u.level}  {u.data.characterClass}   XP {u.xp}/{u.XpToNext}", GUILayout.Width(330));
+                GUILayout.Label($"{u.Name}  Lv{u.level}  {u.data.characterClass}   XP {u.xp}/{u.XpToNext}", GUILayout.Width(250));
+                if (GUILayout.Button(u.row + " row", GUILayout.Width(80))) u.row = u.row == Row.Front ? Row.Back : Row.Front;
                 GUILayout.Label(StatLine(u));
                 if (GUILayout.Button(active ? "Remove" : "Add to team", GUILayout.Width(110)))
                 {
@@ -334,6 +352,81 @@ namespace RpgGame
             }
         }
 
+        void DrawQuestsTab()
+        {
+            bool any = false;
+            foreach (var q in questLog.quests)
+            {
+                if (questLog.StatusOf(q) != QuestStatus.Active) continue;
+                any = true;
+                GUILayout.Label($"{q.title}  {questLog.Progress(q)}/{q.target}{(questLog.CanClaim(q) ? "  (ready - return to Elder Mira)" : "")}");
+            }
+            if (!any) GUILayout.Label("No active quests. Talk to Elder Mira (E).");
+        }
+
+        void DrawDialog()
+        {
+            var r = new Rect(Screen.width / 2f - 300, 60, 600, Mathf.Min(Screen.height - 120, 520));
+            GUILayout.BeginArea(r, GUI.skin.box);
+            GUILayout.Label($"{currentNpc.name}    Gold: {inventory.gold}");
+
+            menuScroll = GUILayout.BeginScrollView(menuScroll);
+            if (currentNpc.kind == WorldView3D.NpcKind.Quest) DrawQuestGiver();
+            else DrawShop();
+            GUILayout.EndScrollView();
+
+            if (GUILayout.Button("Leave (Esc)", GUILayout.Height(30))) mode = Mode.Explore;
+            GUILayout.EndArea();
+        }
+
+        void DrawQuestGiver()
+        {
+            GUILayout.Label("\"Brave travellers! Help the village and you shall be rewarded.\"");
+            foreach (var q in questLog.quests)
+            {
+                var st = questLog.StatusOf(q);
+                GUILayout.BeginVertical(GUI.skin.box);
+                string reward = $"Reward: {q.rewardGold} gold" + (q.rewardItem != null ? $" + {q.rewardItem.displayName}" : "");
+                GUILayout.Label($"{q.title}  -  {q.description}\n{reward}");
+                if (st == QuestStatus.Available)
+                {
+                    if (GUILayout.Button("Accept")) questLog.Accept(q);
+                }
+                else if (st == QuestStatus.Active)
+                {
+                    GUILayout.Label($"Progress {questLog.Progress(q)}/{q.target}");
+                    GUI.enabled = questLog.CanClaim(q);
+                    if (GUILayout.Button("Claim reward") && questLog.Claim(q, inventory)) Toast_("Quest complete: " + q.title);
+                    GUI.enabled = true;
+                }
+                else GUILayout.Label("Completed");
+                GUILayout.EndVertical();
+            }
+        }
+
+        void DrawShop()
+        {
+            GUILayout.Label("Buy");
+            foreach (var g in content.shopStock)
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label($"{GearLabel(g)}  [{g.slot}]", GUILayout.Width(430));
+                GUI.enabled = inventory.gold >= Inventory.Price(g);
+                if (GUILayout.Button($"Buy {Inventory.Price(g)}g", GUILayout.Width(100))) inventory.Buy(g);
+                GUI.enabled = true;
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.Space(8);
+            GUILayout.Label("Sell (half price)");
+            foreach (var g in inventory.items.ToList())
+            {
+                GUILayout.BeginHorizontal();
+                GUILayout.Label(GearLabel(g), GUILayout.Width(430));
+                if (GUILayout.Button($"Sell {Inventory.Price(g) / 2}g", GUILayout.Width(100))) inventory.Sell(g);
+                GUILayout.EndHorizontal();
+            }
+        }
+
         void DrawAchievementsTab()
         {
             foreach (var a in content.achievements)
@@ -349,13 +442,13 @@ namespace RpgGame
             GUILayout.BeginHorizontal();
             if (GUILayout.Button("Save game", GUILayout.Height(34)))
             {
-                SaveSystem.Write(SaveSystem.Capture(party, inventory));
+                SaveSystem.Write(SaveSystem.Capture(party, inventory, questLog));
                 systemMessage = "Game saved.";
             }
             GUI.enabled = SaveSystem.Exists;
             if (GUILayout.Button("Load game", GUILayout.Height(34)))
             {
-                SaveSystem.Apply(SaveSystem.Read(), content.db, party, inventory);
+                SaveSystem.Apply(SaveSystem.Read(), content.db, party, inventory, questLog);
                 tracker.SyncFromCounters();
                 selected = party.roster.Count > 0 ? party.roster[0] : null;
                 systemMessage = "Game loaded.";

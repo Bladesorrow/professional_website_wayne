@@ -16,7 +16,17 @@ namespace RpgGame
             public Transform marker;
         }
 
+        public enum NpcKind { Quest, Shop }
+
+        public class Npc
+        {
+            public string name;
+            public NpcKind kind;
+            public Transform marker;
+        }
+
         public readonly List<Encounter> encounters = new List<Encounter>();
+        public readonly List<Npc> npcs = new List<Npc>();
         Transform player;
         Camera cam;
         float cooldown;
@@ -43,8 +53,29 @@ namespace RpgGame
             AddEncounter("Wolf Den", new Vector3(-12f, 0f, 10f), false);
             AddEncounter("Bandit Road", new Vector3(14f, 0f, -12f), false);
             AddEncounter("Troll King's Keep", new Vector3(-18f, 0f, -16f), true);
+            AddNpc("Elder Mira", NpcKind.Quest, new Vector3(4f, 0f, -4f), new Color(0.9f, 0.85f, 0.3f));
+            AddNpc("Bram the Smith", NpcKind.Shop, new Vector3(-5f, 0f, -3f), new Color(0.8f, 0.4f, 0.3f));
             ScatterTrees();
             SnapCamera();
+        }
+
+        void AddNpc(string n, NpcKind kind, Vector3 pos, Color color)
+        {
+            var t = new GameObject(n).transform;
+            t.SetParent(transform);
+            t.position = pos;
+            Part(t, PrimitiveType.Capsule, new Vector3(0f, 1f, 0f), new Vector3(0.9f, 1f, 0.9f), color);
+            Part(t, PrimitiveType.Sphere, new Vector3(0f, 2.15f, 0f), Vector3.one * 0.6f, new Color(0.95f, 0.85f, 0.7f));
+            Part(t, PrimitiveType.Cube, new Vector3(0f, 3.0f, 0f), new Vector3(0.3f, 0.3f, 0.3f), new Color(1f, 0.9f, 0.2f));
+            npcs.Add(new Npc { name = n, kind = kind, marker = t });
+        }
+
+        /// <summary>The NPC the player is close enough to talk to, if any.</summary>
+        public Npc NearbyNpc()
+        {
+            foreach (var n in npcs)
+                if (Vector3.Distance(player.position, n.marker.position) < 3f) return n;
+            return null;
         }
 
         void AddEncounter(string n, Vector3 pos, bool raid)
@@ -133,6 +164,12 @@ namespace RpgGame
             if (cam == null) return;
             if (labelStyle == null)
                 labelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontSize = 14, fontStyle = FontStyle.Bold };
+            foreach (var n in npcs)
+            {
+                var np = cam.WorldToScreenPoint(n.marker.position + Vector3.up * 3.6f);
+                if (np.z <= 0f) continue;
+                GUI.Label(new Rect(np.x - 90, Screen.height - np.y - 10, 180, 22), n.name + (n.kind == NpcKind.Shop ? "  [Shop]" : "  [Quests]"), labelStyle);
+            }
             foreach (var e in encounters)
             {
                 var sp = cam.WorldToScreenPoint(e.marker.position + Vector3.up * (e.raid ? 2.2f : 1.4f));

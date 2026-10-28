@@ -10,6 +10,8 @@ namespace RpgGame
         public readonly Party party = new Party();
         public readonly Inventory inventory = new Inventory();
         public readonly LootTable loot = new LootTable();
+        public readonly QuestLog questLog = new QuestLog();
+        public readonly List<GearData> shopStock = new List<GearData>();
         public readonly List<AchievementData> achievements = new List<AchievementData>();
 
         CharacterData goblin, wolf, troll;
@@ -32,6 +34,7 @@ namespace RpgGame
             Reg(new Unit(Char("Dax", "Rogue", 85, 24, 15, 5, 4, 14, strike, backstab, venom), 3));
             Reg(new Unit(Char("Eli", "Ranger", 95, 24, 14, 6, 5, 11, strike, arrows), 2));
             Reg(new Unit(Char("Fenn", "Bard", 85, 30, 8, 5, 12, 10, strike, song), 2));
+            foreach (var n in new[] { "Brin", "Cleo", "Fenn" }) party.roster.Find(x => x.Name == n).row = Row.Back;
             party.SetType(PartyType.Standard);
             party.AutoFill();
 
@@ -53,6 +56,25 @@ namespace RpgGame
             AddGear("Sage Amulet", GearSlot.Accessory, Rarity.Rare, 20, V(StatType.Magic, 6), V(StatType.MaxMP, 10));
 
             foreach (var n in new[] { "Iron Sword", "Oak Staff", "Leather Cap", "Chain Vest" }) inventory.Add(db.GetGear(n));
+
+            foreach (var n in new[] { "Leather Cap", "Iron Helm", "Chain Vest", "Iron Sword", "Oak Staff", "Swift Ring", "Sage Amulet", "Plate Mail" })
+                shopStock.Add(db.GetGear(n));
+
+            questLog.quests.Add(new Quest
+            {
+                id = "clear_camps", title = "Clear the Roads", description = "Win 2 battles to make the roads safe.",
+                counterKey = "battles_won", target = 2, rewardGold = 120, rewardItem = db.GetGear("Iron Helm"),
+            });
+            questLog.quests.Add(new Quest
+            {
+                id = "monster_hunt", title = "Monster Hunt", description = "Defeat 8 monsters.",
+                counterKey = "enemies_defeated", target = 8, rewardGold = 200, rewardItem = db.GetGear("Swift Ring"),
+            });
+            questLog.quests.Add(new Quest
+            {
+                id = "raid_keep", title = "Topple the Troll King", description = "Clear the raid at Troll King's Keep with a team of 6.",
+                counterKey = "raids_won", target = 1, rewardGold = 600, rewardItem = db.GetGear("Dragon Fang"),
+            });
 
             achievements.Add(Ach("first_win", "First Victory", "battles_won", 1));
             achievements.Add(Ach("slayer", "Slayer (10 enemies)", "enemies_defeated", 10));

@@ -12,7 +12,10 @@ namespace RpgGame
 
     public enum SkillKind { PhysicalDamage, MagicDamage, Heal, Guard }
 
-    public enum StatusType { None, Poison, Guard }
+    public enum StatusType { None, Poison, Guard, Enrage }
+
+    // Back row takes 30% less physical damage but also deals 20% less physical damage.
+    public enum Row { Front, Back }
 
     // Standard = 4 members (story/open world), Raid = 6 members.
     public enum PartyType { Standard = 4, Raid = 6 }

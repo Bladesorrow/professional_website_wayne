@@ -76,6 +76,7 @@ namespace RpgGame
             Layout(b.enemies, 5f, 180f);
             b.Applied += OnApplied;
             b.Defeated += OnDefeated;
+            b.Enraged += OnEnraged;
             cam.transform.position = new Vector3(0f, 8.5f, -15f);
             cam.transform.LookAt(new Vector3(0f, 1f, 2f));
         }
@@ -88,7 +89,7 @@ namespace RpgGame
 
         void Clear()
         {
-            if (battle != null) { battle.Applied -= OnApplied; battle.Defeated -= OnDefeated; battle = null; }
+            if (battle != null) { battle.Applied -= OnApplied; battle.Defeated -= OnDefeated; battle.Enraged -= OnEnraged; battle = null; }
             foreach (var m in models.Values) if (m.root != null) Destroy(m.root.gameObject);
             models.Clear();
             floats.Clear();
@@ -100,7 +101,7 @@ namespace RpgGame
             for (int i = 0; i < units.Count; i++)
             {
                 float x = (i - (units.Count - 1) / 2f) * spacing;
-                float depth = units.Count > 4 && i % 2 == 1 ? 1.4f : 0f;
+                float depth = units[i].row == Row.Back ? 1.8f : 0f;
                 var pos = new Vector3(x, 0f, z + Mathf.Sign(z) * depth);
                 models[units[i]] = BuildModel(units[i], pos, Quaternion.Euler(0f, yaw, 0f));
             }
@@ -169,6 +170,13 @@ namespace RpgGame
         void OnDefeated(Unit u)
         {
             if (models.TryGetValue(u, out var m)) m.dying = true;
+        }
+
+        void OnEnraged(Unit u)
+        {
+            if (!models.TryGetValue(u, out var m)) return;
+            Flash(m, new Color(1f, 0.4f, 0f));
+            Float(m.root.position + Vector3.up * 4f, "ENRAGED!", new Color(1f, 0.5f, 0.1f));
         }
 
         static void Flash(Model m, Color c)
@@ -245,6 +253,7 @@ namespace RpgGame
 
                 string tag = m.unit.statuses.ContainsKey(StatusType.Poison) ? " [PSN]" : "";
                 if (m.unit.statuses.ContainsKey(StatusType.Guard)) tag += " [GRD]";
+                if (m.unit.statuses.ContainsKey(StatusType.Enrage)) tag += " [ENR]";
                 GUI.Label(new Rect(x - 70, y - 24, 140, 20), m.unit.Name + tag, labelStyle);
             }
 
