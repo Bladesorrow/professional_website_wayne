@@ -21,4 +21,4 @@ Uses the legacy Input Manager (`Input.GetAxis`); set *Active Input Handling* to 
 - `Demo/` `GameController` (state machine + IMGUI menus), `WorldView3D` (field + encounters), `BattleView3D` (3D battle with primitives), `DemoContent` (all data built at runtime, no assets required).
 
 ## Next ideas
-Real 3D models/animations, more status effects and elements, formations and roles for raids, NPCs and quests, shops, boss mechanics, proper UI (UI Toolkit), data assets instead of runtime-built content.
+Real 3D models and animations, more status effects and elements, more NPCs and dialogue, boss telegraphs and adds, proper UI (UI Toolkit), data assets instead of runtime-built content.
