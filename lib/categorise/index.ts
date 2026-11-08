@@ -10,8 +10,9 @@ export const DEFAULT_RULES: Rule[] = [
   ...to("Salary", ["GRAFTON DIGITA"]),
   ...to("Social welfare", ["DEPT OF SOCIAL"]),
   ...to("Rent", ["GALWAY CO CO"]),
-  // Money arriving from Wayne's other accounts. Shown separately so spending that is being covered by transfers stays visible.
-  ...to("Rent funding (from 5770)", ["FR 5770"]),
+  // Account 5770 is the rent pot: a month of rent goes in, and €140 comes back each week. Neutral both ways.
+  ...to("Rent pot (5770)", ["FR 5770", "TO 5770"]),
+  // Account 7440 only ever sends money in. Shown separately so spending that is being covered by transfers stays visible.
   ...to("Top-ups from 7440", ["FR 7440"]),
   ...to("Holidays", ["THE HENDRICK"]),
   ...to("Energy & utilities", ["ENERGIA", "BORD GAIS", "ELECTRIC IRELAND", "FLOGAS"]),
