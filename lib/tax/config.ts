@@ -1,13 +1,15 @@
 // Irish tax parameters, keyed by tax year. All figures are in euro (not cents).
 //
-// IMPORTANT: these values were gathered from third-party sites because Revenue.ie and gov.ie were not
-// reachable when this was written. Set `verified: true` only after checking each figure against
-// Revenue.ie (rates, bands, credits, USC), gov.ie PRSI rates and the gov.ie Working Family Payment page,
-// or against the household's Revenue Tax Credit Certificate.
+// Checked on 2026-11-08 against revenue.ie (tax rate bands, credits, USC thresholds and exemption) and the
+// gov.ie Working Family Payment page (income limits, 60% rule, net-income definition).
+// Still to confirm: the employee PRSI rate and the WFP minimum payment. Set `verified: true` once they are.
 
 export interface TaxYearConfig {
   year: number;
   verified: boolean;
+  verifiedOn: string;
+  verifiedItems: string[];
+  unverifiedItems: string[];
   /** Standard-rate cut-off point for a married couple with one income. */
   standardRateCutOff: number;
   standardRate: number;
@@ -27,6 +29,14 @@ export const TAX_YEARS: Record<number, TaxYearConfig> = {
   2026: {
     year: 2026,
     verified: false,
+    verifiedOn: "8 Nov 2026",
+    verifiedItems: [
+      "income tax rates and the €53,000 cut-off for a married couple with one income (Revenue.ie)",
+      "personal, PAYE and home carer tax credits (Revenue.ie)",
+      "USC bands and the €13,000 exemption (Revenue.ie)",
+      "Working Family Payment limits, 60% rule and net-income definition (gov.ie)",
+    ],
+    unverifiedItems: ["employee PRSI rate", "Working Family Payment minimum weekly payment"],
     standardRateCutOff: 53000,
     standardRate: 0.2,
     higherRate: 0.4,

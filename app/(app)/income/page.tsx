@@ -28,9 +28,10 @@ export default async function IncomePage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Income &amp; tax</h1>
       {!cfg.verified && (
-        <div className="card border-amber-500 text-sm">
-          <p className="font-semibold">Tax figures not yet verified</p>
-          <p className="muted">The {cfg.year} rates, credits, USC bands, PRSI and Working Family Payment limits were not checked against Revenue.ie and gov.ie. Treat results as estimates. PRSI: {cfg.prsiNote}. To verify, compare with your Revenue Tax Credit Certificate and update <code>lib/tax/config.ts</code>.</p>
+        <div className="card border-amber-500 text-sm space-y-1">
+          <p className="font-semibold">Tax figures checked on {cfg.verifiedOn}, with two gaps</p>
+          <p className="muted">Checked against official pages: {cfg.verifiedItems.join("; ")}.</p>
+          <p className="muted">Not yet confirmed: {cfg.unverifiedItems.join(" and ")}. PRSI is estimated as {cfg.prsiNote}. Results are estimates, not tax advice. Compare with your Revenue Tax Credit Certificate.</p>
         </div>
       )}
 

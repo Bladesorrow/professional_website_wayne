@@ -4,7 +4,7 @@ A private personal finance manager for our family of 6. It shows where the money
 
 ## Status
 
-Planning. The full plan covers the architecture, data model, build order, the Irish tax calculator and the savings-tips engine.
+First version built. See `docs/PLAN.md` for the plan and `docs/SETUP.md` to run it.
 
 ## Planned stack
 
