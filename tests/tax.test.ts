@@ -32,6 +32,20 @@ describe("calculateTax (married, one income)", () => {
     expect(b.incomeTax).toBeLessThan(a.incomeTax);
     expect(calculateTax({ grossAnnual: 60000, homeCarerCredit: true }).incomeTax).toBeCloseTo(a.incomeTax - cfg.credits.homeCarer, 2);
   });
+  it("takes a fixed yearly pension amount: relief on income tax only", () => {
+    const none = calculateTax({ grossAnnual: 48000, homeCarerCredit: true });
+    const fixed = calculateTax({ grossAnnual: 48000, homeCarerCredit: true, pensionAnnual: 650 });
+    expect(fixed.pension).toBe(650);
+    expect(fixed.usc).toBe(none.usc);
+    expect(fixed.prsi).toBe(none.prsi);
+    expect(fixed.incomeTax).toBeCloseTo(none.incomeTax - 650 * 0.2, 2);
+    expect(fixed.netAnnual).toBeCloseTo(none.netAnnual - 650 + 650 * 0.2, 2);
+    expect(fixed.marginalRate).toBeCloseTo(none.marginalRate, 3);
+  });
+  it("finds the gross behind a take-home that already has pension taken off", () => {
+    const net = calculateTax({ grossAnnual: 48000, homeCarerCredit: true, pensionAnnual: 650 }).netAnnual;
+    expect(Math.abs(grossFromNet(net, { homeCarerCredit: true, pensionAnnual: 650 }) - 48000)).toBeLessThanOrEqual(1);
+  });
   it("inverts net to gross", () => {
     const net = calculateTax({ grossAnnual: 45000 }).netAnnual;
     expect(Math.abs(grossFromNet(net) - 45000)).toBeLessThanOrEqual(1);
