@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
-import { profile } from "../content/profile";
 import "./globals.css";
 
-export const metadata: Metadata = {
-  title: `${profile.name} | ${profile.title}`,
-  description: profile.tagline,
-};
+export const metadata: Metadata = { title: "My Finance", description: "Family finance manager" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en-IE">
       <body>{children}</body>
     </html>
   );
