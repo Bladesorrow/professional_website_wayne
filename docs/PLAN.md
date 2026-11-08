@@ -83,8 +83,8 @@ The family has several income streams, and only some of them land in the PTSB ac
 |---|---|---|---|
 | Salary (Grafton Digital) | every 4 weeks | Yes | Yes (PAYE, USC, PRSI) |
 | Working Family Payment (WFP) | weekly, Thursday | Yes (the `CT DEPT OF SOCIAL PRO` credit, about €198) | No |
-| Fuel Allowance | weekly, seasonal; part of the Thursday payment (about €38) | Yes | No |
-| Child Benefit | monthly | **No, goes to the wife's account** | No |
+| Fuel Allowance | weekly, September to April; part of the Thursday payment (about €38) | Yes | No |
+| Child Benefit | monthly | **No, goes to the wife's account. Excluded for now** | No |
 
 Changes to the plan:
 - `income_sources` table: name, amount, frequency (weekly / 4-weekly / monthly), start and end dates, taxable flag, account. Fuel Allowance has a season start and end date.
@@ -93,3 +93,6 @@ Changes to the plan:
 - Dashboard "income" shows all four streams, not just what hits the PTSB account.
 - **WFP is means-tested**, so more pay can reduce it. The tax calculator's what-if must show the net gain from a pay rise or overtime after tax, USC, PRSI **and** the lower WFP.
 - WFP income thresholds and rates are stored in `tax_config` per year and must be checked against gov.ie before relying on them.
+
+- Wife has no income other than Child Benefit, so the WFP means test uses Wayne's pay only.
+- Fuel Allowance runs September to April. The Thursday credit was €214 in Aug-Sep and €198 from 1 Oct, so it can't be split by a simple +€38 rule. The importer will let Wayne set the split by hand and check it against the bank data.
