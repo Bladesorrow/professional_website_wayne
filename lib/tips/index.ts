@@ -1,5 +1,5 @@
 // Rule-based savings tips. Savings figures are estimates, labelled as such in the UI.
-import { averageMonthlyByCategory, fullMonths, isSpending, monthOf, type Tx } from "@/lib/analytics";
+import { averageMonthlyByCategory, fullMonths, isSpending, monthOf, monthTotals, TOPUPS_7440, type Tx } from "@/lib/analytics";
 import { fmt0 } from "@/lib/money";
 
 export interface Tip { id: string; title: string; detail: string; savingPerMonthCents: number }
@@ -116,7 +116,18 @@ export function buildTips(txs: Tx[], opts: { goals?: Goal[]; today?: string } = 
     tips.push({ id: "no-goal", title: "Set a holiday goal",
       detail: "Add a savings goal with a target and date, and My Finance will work out the weekly amount. You already move money to savings each week, so the habit is there.", savingPerMonthCents: 0 });
   }
-  return tips.sort((a, b) => b.savingPerMonthCents - a.savingPerMonthCents);
+  tips.sort((a, b) => b.savingPerMonthCents - a.savingPerMonthCents);
+
+  // Spending covered by transfers from account 7440 is the most important thing to see, so it goes first.
+  const gaps = full.map((mo) => ({ mo, ...monthTotals(txs, mo) })).filter((m) => m.spend > m.income && m.topUps > 0);
+  if (gaps.length >= 2) {
+    const fromAccount = txs.filter((t) => t.category === TOPUPS_7440 && t.amount_cents > 0 && gaps.some((g) => g.mo === monthOf(t.date)));
+    const avgGap = Math.round(sum(gaps.map((g) => g.spend - g.income)) / gaps.length);
+    const avgTopUp = Math.round(sum(fromAccount.map((t) => t.amount_cents)) / gaps.length);
+    tips.unshift({ id: "topups", title: "Spending is running ahead of income",
+      detail: `In ${gaps.length} of the last ${full.length} full months you spent about ${fmt0(avgGap)} a month more than came into this account from pay and social welfare. Transfers from other accounts (account 7440 averaged ${fmt0(avgTopUp)} a month) covered the gap. Check what account 7440 is. If it is a credit card or loan, this is debt building up, and closing the gap is worth more than any single saving below.`, savingPerMonthCents: 0 });
+  }
+  return tips;
 }
 
 function scaled(txs: Tx[], spanDays: number) {

@@ -13,8 +13,14 @@ describe("analytics", () => {
     t("2026-10-12", -70000, "PTSB VISA", "Transfers", "transfer"),
   ];
   it("excludes transfers and savings from spending", () => {
-    expect(monthTotals(txs, "2026-10")).toEqual({ spend: 8000, income: 300000, saved: 2000, net: 292000 });
+    expect(monthTotals(txs, "2026-10")).toEqual({ spend: 8000, income: 300000, saved: 2000, topUps: 0, net: 292000 });
     expect(byCategory(txs, "2026-10")).toEqual([{ name: "Groceries", cents: 8000 }]);
+  });
+  it("counts money from the funding accounts as top-ups, not income", () => {
+    const withTopUps = [...txs, t("2026-10-14", 50000, "Fr 7440", "Top-ups from 7440", "transfer"), t("2026-10-15", 14000, "Fr 5770", "Rent funding (from 5770)", "transfer"), t("2026-10-16", -9000, "to 5770", "Transfers", "transfer")];
+    const m = monthTotals(withTopUps, "2026-10");
+    expect(m.topUps).toBe(64000);
+    expect(m.income).toBe(300000);
   });
   it("finds the Monday of a week", () => {
     expect(weekStart("2026-11-08")).toBe("2026-11-02"); // Sunday

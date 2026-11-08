@@ -9,7 +9,11 @@ const to = (category: string, patterns: string[]): Rule[] => patterns.map((patte
 export const DEFAULT_RULES: Rule[] = [
   ...to("Salary", ["GRAFTON DIGITA"]),
   ...to("Social welfare", ["DEPT OF SOCIAL"]),
-  ...to("Housing", ["GALWAY CO CO"]),
+  ...to("Rent", ["GALWAY CO CO"]),
+  // Money arriving from Wayne's other accounts. Shown separately so spending that is being covered by transfers stays visible.
+  ...to("Rent funding (from 5770)", ["FR 5770"]),
+  ...to("Top-ups from 7440", ["FR 7440"]),
+  ...to("Holidays", ["THE HENDRICK"]),
   ...to("Energy & utilities", ["ENERGIA", "BORD GAIS", "ELECTRIC IRELAND", "FLOGAS"]),
   ...to("Insurance", ["ALLIANZ"]),
   ...to("Groceries", ["TESCO", "SUPERVALU", "ALDI", "LIDL", "DUNNES"]),

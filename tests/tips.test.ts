@@ -20,6 +20,18 @@ describe("buildTips", () => {
     expect(ids).toContain("double-SKYSUBSCRIBE");
     expect(tips[0].savingPerMonthCents).toBeGreaterThanOrEqual(tips[tips.length - 1].savingPerMonthCents);
   });
+  it("puts a warning first when top-ups cover spending in two or more full months", () => {
+    const data: Tx[] = [t("2026-08-01", -1, "X", "Other")];
+    for (const mo of ["2026-09", "2026-10"]) {
+      data.push(t(`${mo}-05`, 300000, "GRAFTON", "Salary", "income"));
+      data.push(t(`${mo}-10`, 200000, "Fr 7440", "Top-ups from 7440", "transfer"));
+      data.push(t(`${mo}-12`, -450000, "TESCO", "Groceries"));
+    }
+    data.push(t("2026-11-02", -100, "X", "Other"));
+    const tips = buildTips(data, { today: "2026-11-03" });
+    expect(tips[0].id).toBe("topups");
+    expect(tips[0].detail).toContain("account 7440");
+  });
   it("works out a weekly amount for a goal and skips met goals", () => {
     const tips = buildTips(txs, { today: "2026-11-01", goals: [
       { name: "Holiday", target_cents: 300000, saved_cents: 0, deadline: "2027-05-01" },

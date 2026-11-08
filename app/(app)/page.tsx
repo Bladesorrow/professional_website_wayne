@@ -53,10 +53,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </div>
       {partial && <p className="card text-sm muted">{month} is only partly covered by your imported data ({days(month)} days with transactions), so totals will look low.</p>}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Stat label="Spending" value={fmt0(totals.spend)} sub={avgSpend !== null ? `Avg full month: ${fmt0(avgSpend)}` : undefined} />
         <Stat label="Income into bank" value={fmt0(totals.income)} sub="Salary and social welfare" />
         <Stat label="Left over" value={fmt0(totals.net)} tone={totals.net >= 0 ? "pos" : "neg"} sub="Income minus spending" />
+        <Stat label="Topped up from other accounts" value={fmt0(totals.topUps)} sub={`Accounts 5770 and 7440. After top-ups: ${fmt0(totals.net + totals.topUps)}`} />
         <Stat label="Moved to savings" value={fmt0(totals.saved)} sub="Weekly SAVINGS transfers" />
       </div>
 

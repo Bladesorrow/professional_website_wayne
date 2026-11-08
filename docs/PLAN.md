@@ -96,3 +96,9 @@ Changes to the plan:
 
 - Wife has no income other than Child Benefit, so the WFP means test uses Wayne's pay only.
 - Fuel Allowance runs September to April. The Thursday credit was €214 in Aug-Sep and €198 from 1 Oct, so it can't be split by a simple +€38 rule. The importer will let Wayne set the split by hand and check it against the bank data.
+
+## Update: accounts and categories (Nov 2026)
+- The Hendrick is a hotel, so it is categorised as Holidays.
+- Galway Co Co (€140 a week) is rent. The "Housing" category is now "Rent".
+- Account 5770 sends €140 a week to fund the rent. Account 7440 only ever sends money in (about €4,850 over three months), so it is treated as a funding source, not income and not card repayments. What 7440 is has not been confirmed. Both are shown on the dashboard as "Topped up from other accounts", and a tip appears when spending runs ahead of income.
+- Open: what 7440 is, and what the monthly transfer to 5770 (€480, €560, €700) is for.
