@@ -13,10 +13,13 @@ export interface Tx {
 
 export const UNCATEGORISED = "Uncategorised";
 
-/** Transfer categories for money arriving from other accounts. They are not income, but they fund spending. */
-export const RENT_FUNDING = "Rent funding (from 5770)";
+/**
+ * Money arriving from account 7440 is not income, but it funds spending, so it is shown separately.
+ * Account 5770 (the rent pot) is not counted: the rent goes in monthly and comes back weekly, so it nets out.
+ */
+export const RENT_POT = "Rent pot (5770)";
 export const TOPUPS_7440 = "Top-ups from 7440";
-const FUNDING_CATEGORIES = new Set([RENT_FUNDING, TOPUPS_7440]);
+const FUNDING_CATEGORIES = new Set([TOPUPS_7440]);
 export const isTopUp = (t: Tx) => t.amount_cents > 0 && t.category !== null && FUNDING_CATEGORIES.has(t.category);
 
 /** Spending = expense categories, plus uncategorised outflows. Transfers and savings are not spending. */
