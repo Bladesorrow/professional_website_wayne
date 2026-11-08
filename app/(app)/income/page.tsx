@@ -34,6 +34,9 @@ export default async function IncomePage() {
           <p className="muted">Not yet confirmed: {cfg.unverifiedItems.join(" and ")}. PRSI is estimated as {cfg.prsiNote}. Results are estimates, not tax advice. Compare with your Revenue Tax Credit Certificate.</p>
         </div>
       )}
+      {cfg.verified && (
+        <p className="muted text-xs">Rates, credits, USC, PRSI and Working Family Payment figures for {cfg.year} were checked against Revenue.ie, gov.ie and Citizens Information on {cfg.verifiedOn}. PRSI is blended over the year ({cfg.prsiNote}). Results are estimates, not tax advice.</p>
+      )}
 
       <div className="card">
         <h2 className="font-semibold mb-1">Income streams</h2>

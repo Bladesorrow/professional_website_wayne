@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateTax, grossFromNet, uscFor } from "../lib/tax/calculate";
+import { calculateTax, grossFromNet, prsiFor, uscFor } from "../lib/tax/calculate";
 import { TAX_YEARS } from "../lib/tax/config";
 import { wfpWeekly } from "../lib/tax/wfp";
 
@@ -41,9 +41,23 @@ describe("calculateTax (married, one income)", () => {
   });
 });
 
+describe("PRSI", () => {
+  it("is nil at or below €352 a week, tapers above it, and is flat above €424 a week", () => {
+    expect(prsiFor(352 * 52, cfg)).toBe(0);
+    const justAbove = prsiFor(352.01 * 52, cfg);
+    expect(justAbove).toBeLessThan(352.01 * 52 * cfg.prsiRate - 11.9 * 52);
+    expect(prsiFor(424 * 52, cfg)).toBeCloseTo(424 * 52 * cfg.prsiRate - (12 - (424 - 352.01) / 6) * 52, 2);
+    expect(prsiFor(45000, cfg)).toBeCloseTo(45000 * cfg.prsiRate, 2);
+  });
+});
+
 describe("Working Family Payment", () => {
   it("pays 60% of the gap below the limit for four children", () => {
     expect(wfpWeekly(780, 4)).toBeCloseTo((1058 - 780) * 0.6, 2);
+  });
+  it("applies the €20 minimum weekly payment", () => {
+    expect(wfpWeekly(1058 - 40, 4)).toBeCloseTo(24, 2);  // 60% of 40
+    expect(wfpWeekly(1058 - 30, 4)).toBe(0);              // 60% of 30 = 18, below the minimum
   });
   it("pays nothing above the limit or with no children", () => {
     expect(wfpWeekly(1100, 4)).toBe(0);

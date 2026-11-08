@@ -26,6 +26,16 @@ export function uscFor(gross: number, cfg: TaxYearConfig): number {
   return tax;
 }
 
+/** Employee PRSI (Class A): nothing at or below the weekly threshold, a tapered credit just above it, then the flat rate. */
+export function prsiFor(gross: number, cfg: TaxYearConfig): number {
+  const weekly = gross / 52;
+  const { exemptWeekly, creditMax, creditCeilingWeekly } = cfg.prsiLowEarner;
+  if (weekly <= exemptWeekly) return 0;
+  let credit = 0;
+  if (weekly <= creditCeilingWeekly) credit = Math.max(0, creditMax - (weekly - (exemptWeekly + 0.01)) / 6);
+  return Math.max(0, (weekly * cfg.prsiRate - credit) * 52);
+}
+
 export function calculateTax(input: TaxInput): TaxResult {
   const cfg = TAX_YEARS[input.year ?? 2026];
   if (!cfg) throw new Error(`No tax configuration for ${input.year}`);
@@ -39,7 +49,7 @@ export function calculateTax(input: TaxInput): TaxResult {
   const credits = cfg.credits.personalMarried + cfg.credits.paye + (input.homeCarerCredit ? cfg.credits.homeCarer : 0);
   const incomeTax = Math.max(0, taxBeforeCredits - credits);
   const usc = uscFor(gross, cfg);
-  const prsi = gross * cfg.prsiRate;
+  const prsi = prsiFor(gross, cfg);
   const netAnnual = gross - pension - incomeTax - usc - prsi;
 
   // Marginal rate: share of the next euro of gross pay lost to tax, USC and PRSI (pension contributions are not "lost").
@@ -61,7 +71,7 @@ function calculateTaxNoRecurse(gross: number, input: TaxInput, cfg: TaxYearConfi
   const tbc = Math.min(taxable, cfg.standardRateCutOff) * cfg.standardRate + Math.max(0, taxable - cfg.standardRateCutOff) * cfg.higherRate;
   const credits = cfg.credits.personalMarried + cfg.credits.paye + (input.homeCarerCredit ? cfg.credits.homeCarer : 0);
   const incomeTax = Math.max(0, tbc - credits);
-  return { netAnnual: gross - pension - incomeTax - uscFor(gross, cfg) - gross * cfg.prsiRate };
+  return { netAnnual: gross - pension - incomeTax - uscFor(gross, cfg) - prsiFor(gross, cfg) };
 }
 
 /** Working out gross pay from the take-home pay seen in the bank (inverse of calculateTax), by bisection. */
