@@ -1,26 +1,20 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
+:root { --bg: #f6f7f9; --fg: #14181f; --muted: #5b6573; --card: #ffffff; --line: #e3e6eb; --accent: #0f766e; }
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  :root { --bg: #0d1117; --fg: #e8ecf2; --muted: #9aa5b4; --card: #161b22; --line: #2a313b; --accent: #2dd4bf; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+body { background: var(--bg); color: var(--fg); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+header { background: var(--card) !important; border-color: var(--line) !important; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+.muted { color: var(--muted); }
+.input { width: 100%; border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 8px 10px; color: inherit; }
+.btn { background: var(--accent); color: #fff; border-radius: 8px; padding: 8px 14px; font-weight: 500; cursor: pointer; }
+.btn:disabled { opacity: .6; cursor: default; }
+.btn-ghost { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+table.t { width: 100%; font-size: 14px; border-collapse: collapse; }
+table.t th { text-align: left; color: var(--muted); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--line); }
+table.t td { padding: 6px 8px; border-bottom: 1px solid var(--line); }
+.pos { color: #15803d; } .neg { color: #b91c1c; }
+@media (prefers-color-scheme: dark) { .pos { color: #4ade80; } .neg { color: #f87171; } }
