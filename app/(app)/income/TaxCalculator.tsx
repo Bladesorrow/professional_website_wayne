@@ -8,16 +8,17 @@ const e = (n: number) => fmt(Math.round(n * 100));
 const e0 = (n: number) => fmt0(Math.round(n * 100));
 
 export default function TaxCalculator({ observedNetFourWeekly, observedWfpWeekly }: { observedNetFourWeekly: number | null; observedWfpWeekly: number | null }) {
-  const suggested = useMemo(() => (observedNetFourWeekly ? grossFromNet(observedNetFourWeekly * 13, { homeCarerCredit: true }) : 45000), [observedNetFourWeekly]);
+  const DEFAULT_PENSION_4W = 50; // employee pension per 4-week payslip, from Wayne's last payslip; the employer adds the same
+  const suggested = useMemo(() => (observedNetFourWeekly ? grossFromNet(observedNetFourWeekly * 13, { homeCarerCredit: true, pensionAnnual: DEFAULT_PENSION_4W * 13 }) : 45000), [observedNetFourWeekly]);
   const [gross, setGross] = useState(suggested);
-  const [pension, setPension] = useState(0);
+  const [pension, setPension] = useState(DEFAULT_PENSION_4W);
   const [carer, setCarer] = useState(true);
   const [children, setChildren] = useState(4);
   const [extra, setExtra] = useState(5000);
 
-  const base = useMemo(() => calculateTax({ grossAnnual: gross, pensionPct: pension / 100, homeCarerCredit: carer }), [gross, pension, carer]);
+  const base = useMemo(() => calculateTax({ grossAnnual: gross, pensionAnnual: pension * 13, homeCarerCredit: carer }), [gross, pension, carer]);
   const wfp = wfpWeekly(base.netAnnual / 52, children);
-  const more = useMemo(() => calculateTax({ grossAnnual: gross + extra, pensionPct: pension / 100, homeCarerCredit: carer }), [gross, extra, pension, carer]);
+  const more = useMemo(() => calculateTax({ grossAnnual: gross + extra, pensionAnnual: pension * 13, homeCarerCredit: carer }), [gross, extra, pension, carer]);
   const wfpMore = wfpWeekly(more.netAnnual / 52, children);
   const extraNet = more.netAnnual - base.netAnnual;
   const extraWfpLoss = (wfp - wfpMore) * 52;
@@ -33,8 +34,8 @@ export default function TaxCalculator({ observedNetFourWeekly, observedWfpWeekly
         <label className="text-sm">Gross pay per year (€)
           <input type="number" min={0} step={100} className="input mt-1" value={gross} onChange={(ev) => setGross(Number(ev.target.value) || 0)} />
         </label>
-        <label className="text-sm">Pension (% of gross)
-          <input type="number" min={0} max={40} step={0.5} className="input mt-1" value={pension} onChange={(ev) => setPension(Number(ev.target.value) || 0)} />
+        <label className="text-sm">Your pension (€ per 4 weeks)
+          <input type="number" min={0} max={2000} step={1} className="input mt-1" value={pension} onChange={(ev) => setPension(Number(ev.target.value) || 0)} />
         </label>
         <label className="text-sm">Children
           <input type="number" min={0} max={12} className="input mt-1" value={children} onChange={(ev) => setChildren(Number(ev.target.value) || 0)} />
@@ -58,6 +59,7 @@ export default function TaxCalculator({ observedNetFourWeekly, observedWfpWeekly
             <tr><td>Per month</td><td className="text-right">{e(base.netAnnual / 12)}</td></tr>
             <tr><td>Per week</td><td className="text-right">{e(base.netAnnual / 52)}</td></tr>
           </tbody></table>
+          {pension > 0 && <p className="muted text-xs mt-2">Pension: you pay {e0(pension)} per 4 weeks and your employer adds the same, so {e0(pension * 2 * 13)} a year goes into your pension. Your share lowers your income tax and the income counted for Working Family Payment, but not USC or PRSI. Your employer&apos;s share is not taxed.</p>}
           <p className="muted text-xs mt-2">Credits applied: {e0(base.credits)}. Effective tax rate {(base.effectiveRate * 100).toFixed(1)}%. Marginal rate {(base.marginalRate * 100).toFixed(0)}%.</p>
         </div>
         <div className="card">
