@@ -75,3 +75,21 @@ Optional step: send the monthly category summary (no raw bank details) to Claude
 - Which bank(s) the family uses, so the right CSV presets are built first.
 - Anthropic API key needed for receipt extraction (set as a server environment variable, never committed).
 - Hosting (Vercel is connected and would suit this) and a Supabase project (new or existing).
+
+## Update: income sources (confirmed by Wayne, Nov 2026)
+The family has several income streams, and only some of them land in the PTSB account:
+
+| Source | Paid | Into PTSB account? | Taxable? |
+|---|---|---|---|
+| Salary (Grafton Digital) | every 4 weeks | Yes | Yes (PAYE, USC, PRSI) |
+| Working Family Payment (WFP) | weekly, Thursday | Yes (the `CT DEPT OF SOCIAL PRO` credit, about €198) | No |
+| Fuel Allowance | weekly, seasonal; part of the Thursday payment (about €38) | Yes | No |
+| Child Benefit | monthly | **No, goes to the wife's account** | No |
+
+Changes to the plan:
+- `income_sources` table: name, amount, frequency (weekly / 4-weekly / monthly), start and end dates, taxable flag, account. Fuel Allowance has a season start and end date.
+- Child Benefit is entered manually at first. Importing the wife's account CSV is a later option.
+- The Thursday credit is one lump sum in the bank data. The importer can split it into WFP and Fuel Allowance once the Fuel Allowance amount is set.
+- Dashboard "income" shows all four streams, not just what hits the PTSB account.
+- **WFP is means-tested**, so more pay can reduce it. The tax calculator's what-if must show the net gain from a pay rise or overtime after tax, USC, PRSI **and** the lower WFP.
+- WFP income thresholds and rates are stored in `tax_config` per year and must be checked against gov.ie before relying on them.
