@@ -12,8 +12,9 @@ export const DEFAULT_RULES: Rule[] = [
   ...to("Rent", ["GALWAY CO CO"]),
   // Account 5770 is the rent pot: a month of rent goes in, and €140 comes back each week. Neutral both ways.
   ...to("Rent pot (5770)", ["FR 5770", "TO 5770"]),
-  // Account 7440 only ever sends money in. Shown separately so spending that is being covered by transfers stays visible.
-  ...to("Top-ups from 7440", ["FR 7440"]),
+  // Account 7440 is Wayne's wife's savings and only ever sends money in. Shown separately so spending that is being
+  // covered by savings stays visible.
+  ...to("Savings moved in (7440)", ["FR 7440"]),
   ...to("Holidays", ["THE HENDRICK"]),
   ...to("Energy & utilities", ["ENERGIA", "BORD GAIS", "ELECTRIC IRELAND", "FLOGAS"]),
   ...to("Insurance", ["ALLIANZ"]),

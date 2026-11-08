@@ -14,13 +14,13 @@ export interface Tx {
 export const UNCATEGORISED = "Uncategorised";
 
 /**
- * Money arriving from account 7440 is not income, but it funds spending, so it is shown separately.
- * Account 5770 (the rent pot) is not counted: the rent goes in monthly and comes back weekly, so it nets out.
+ * Account 7440 is Wayne's wife's savings account. Money arriving from it is not income, but it funds spending,
+ * so it is shown separately. Account 5770 (the rent pot) is not counted: the rent goes in monthly and comes back
+ * weekly, so it nets out.
  */
 export const RENT_POT = "Rent pot (5770)";
-export const TOPUPS_7440 = "Top-ups from 7440";
-const FUNDING_CATEGORIES = new Set([TOPUPS_7440]);
-export const isTopUp = (t: Tx) => t.amount_cents > 0 && t.category !== null && FUNDING_CATEGORIES.has(t.category);
+export const SAVINGS_7440 = "Savings moved in (7440)";
+export const isSavingsIn = (t: Tx) => t.amount_cents > 0 && t.category === SAVINGS_7440;
 
 /** Spending = expense categories, plus uncategorised outflows. Transfers and savings are not spending. */
 export const isSpending = (t: Tx) => t.kind === "expense" || (t.kind === null && t.amount_cents < 0);
@@ -33,15 +33,15 @@ export function availableMonths(txs: Tx[]): string[] {
 }
 
 export function monthTotals(txs: Tx[], month: string) {
-  let spend = 0, income = 0, saved = 0, topUps = 0;
+  let spend = 0, income = 0, saved = 0, savingsIn = 0;
   for (const t of txs) {
     if (monthOf(t.date) !== month) continue;
-    if (isTopUp(t)) topUps += t.amount_cents;
+    if (isSavingsIn(t)) savingsIn += t.amount_cents;
     if (isSpending(t)) spend += -t.amount_cents;
     else if (isIncome(t)) income += t.amount_cents;
     else if (t.kind === "savings") saved += -t.amount_cents;
   }
-  return { spend, income, saved, topUps, net: income - spend };
+  return { spend, income, saved, savingsIn, net: income - spend };
 }
 
 export function byCategory(txs: Tx[], month?: string) {

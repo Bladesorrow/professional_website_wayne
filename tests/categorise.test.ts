@@ -13,7 +13,7 @@ describe("categorise", () => {
   it("handles the hotel and the funding transfers", () => {
     expect(categorise(tx("THE HENDRICK"))).toBe("Holidays");
     expect(categorise(tx("Fr 5770", "transfer_in_out", 14000))).toBe("Rent pot (5770)");
-    expect(categorise(tx("Fr 7440", "transfer_in_out", 50000))).toBe("Top-ups from 7440");
+    expect(categorise(tx("Fr 7440", "transfer_in_out", 50000))).toBe("Savings moved in (7440)");
     expect(categorise(tx("to 5770", "transfer_in_out", -70000))).toBe("Rent pot (5770)");
   });
   it("lets user rules override defaults", () => {

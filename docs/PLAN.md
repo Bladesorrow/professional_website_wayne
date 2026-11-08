@@ -101,5 +101,6 @@ Changes to the plan:
 - The Hendrick is a hotel, so it is categorised as Holidays.
 - Galway Co Co (€140 a week) is rent. The "Housing" category is now "Rent".
 - Account 5770 sends €140 a week to fund the rent. Account 7440 only ever sends money in (about €4,850 over three months), so it is treated as a funding source, not income and not card repayments. What 7440 is has not been confirmed. Both are shown on the dashboard as "Topped up from other accounts", and a tip appears when spending runs ahead of income.
-- Open: what 7440 is, and what the monthly transfer to 5770 (€480, €560, €700) is for.
+- Open: what the monthly transfer to 5770 (€480, €560, €700) will be going forward.
 - Update: account 5770 is the rent pot. A month's rent is moved in, and €140 comes back each week to pay it. Both directions are neutral transfers ("Rent pot (5770)"), so the weekly €140 is not counted as a top-up. Only account 7440 counts as "Topped up".
+- Update: account 7440 is Wayne's wife's savings account. Money arriving from it is **savings being used up** to cover spending, not income, a loan or a card. It is shown as "Savings moved in from 7440", and the first tip says how much a year savings are shrinking by.
