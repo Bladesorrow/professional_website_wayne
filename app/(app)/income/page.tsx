@@ -3,6 +3,9 @@ import { loadTransactions } from "@/lib/data";
 import { fmt } from "@/lib/money";
 import { TAX_YEARS, CURRENT_TAX_YEAR } from "@/lib/tax/config";
 import TaxCalculator from "./TaxCalculator";
+import RentPotCard from "./RentPotCard";
+import { nextPayDate } from "@/lib/rentpot";
+import { RENT_POT } from "@/lib/analytics";
 import { updateIncomeSource } from "./actions";
 
 const FREQ: Record<string, string> = { weekly: "per week", four_weekly: "per 4 weeks", monthly: "per month", yearly: "per year" };
@@ -19,6 +22,10 @@ export default async function IncomePage() {
   const salary = txs.filter((t) => /GRAFTON/i.test(t.merchant ?? t.description) && t.amount_cents > 0).slice(0, 3);
   const observedNet = salary.length ? salary.reduce((a, t) => a + t.amount_cents, 0) / salary.length / 100 : null;
   const dsp = txs.find((t) => /DEPT OF SOCIAL/i.test(t.merchant ?? t.description) && t.amount_cents > 0);
+  const lastPayDate = salary[0]?.date ?? null;
+  const rentTx = txs.find((t) => /GALWAY CO CO/i.test(t.merchant ?? t.description) && t.amount_cents < 0);
+  // Pot balance estimate: money moved in minus money returned (amounts from the pot's point of view are the reverse).
+  const potBalance = txs.filter((t) => t.category === RENT_POT).reduce((a, t) => a - t.amount_cents, 0);
   const suggestions: Record<string, number | undefined> = {
     "Salary (Grafton Digital)": salary[0]?.amount_cents,
     "Working Family Payment": dsp ? dsp.amount_cents - 3800 : undefined,
@@ -35,7 +42,7 @@ export default async function IncomePage() {
         </div>
       )}
       {cfg.verified && (
-        <p className="muted text-xs">Rates, credits, USC, PRSI and Working Family Payment figures for {cfg.year} were checked against Revenue.ie, gov.ie and Citizens Information on {cfg.verifiedOn}. PRSI is blended over the year ({cfg.prsiNote}). Results are estimates, not tax advice.</p>
+        <p className="muted text-xs">Rates, credits, USC, PRSI and Working Family Payment figures for {cfg.year} were checked against Revenue.ie, gov.ie and Citizens Information on {cfg.verifiedOn}. PRSI: {cfg.prsiNote}. Results are estimates, not tax advice.</p>
       )}
 
       <div className="card">
@@ -58,6 +65,13 @@ export default async function IncomePage() {
           })}
         </div>
       </div>
+
+      <RentPotCard
+        lastPayDate={lastPayDate}
+        defaultNextPay={lastPayDate ? nextPayDate(lastPayDate) : null}
+        weeklyRentCents={rentTx ? -rentTx.amount_cents : 14000}
+        estimatedBalanceCents={potBalance}
+      />
 
       <TaxCalculator observedNetFourWeekly={observedNet} observedWfpWeekly={dsp ? dsp.amount_cents / 100 : null} />
     </div>
